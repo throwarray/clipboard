@@ -14,13 +14,19 @@
 					let elem = document.createElement("textarea");
 					let success = false;
 
+					if (typeof(CLIPBOARD.payload) !== 'string')
+						CLIPBOARD.payload = JSON.stringify(
+							CLIPBOARD.payload, null, 4
+						)
+
 					elem.value = CLIPBOARD.payload;
 					document.body.appendChild(elem);
 
 					elem.focus();
 					elem.select();
 
-					try { success = !!document.execCommand("copy"); } catch (err) {}
+					try { success = !!document.execCommand("copy"); }
+					catch (err) {}
 
 					document.body.removeChild(elem);
 
@@ -37,21 +43,21 @@
 				}
 			}
 
-            const ACTION_SETTING_CLIPBOARD = {
-        		"method": "POST",
-        		"body": JSON.stringify({ 
-        		    type: 'SETTING_CLIPBOARD',
-        		    payload: true
-        		})
-    		}
+			const ACTION_SETTING_CLIPBOARD = {
+				"method": "POST",
+				"body": JSON.stringify({
+					type: 'SETTING_CLIPBOARD',
+					payload: true
+				})
+			}
 
 			function onMessage (evt) {
-			    if (!CLIPBOARD) {
-    				if (evt.data && evt.data.type == 'SET_CLIPBOARD') {
-    					CLIPBOARD = evt.data
-        			    fetch('http://clipboard/message', ACTION_SETTING_CLIPBOARD)
-    				}
-			    }
+				if (!CLIPBOARD) {
+					if (evt.data && evt.data.type == 'SET_CLIPBOARD') {
+						CLIPBOARD = evt.data
+						fetch('http://clipboard/message', ACTION_SETTING_CLIPBOARD)
+					}
+				}
 			}
 
 			document.addEventListener('keypress', SetClipboard)
