@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			let CLIPBOARD
+			let SET_CLIPBOARD
+
+			function SetClipboard () {
+				if (CLIPBOARD) {
+					let elem = document.createElement("textarea");
+					let success = false;
+
+					elem.value = CLIPBOARD.payload;
+					document.body.appendChild(elem);
+
+					elem.focus();
+					elem.select();
+
+					try { success = !!document.execCommand("copy"); } catch (err) {}
+
+					document.body.removeChild(elem);
+
+					if (window.parent !== window)
+						fetch('http://clipboard/message', {
+							"method": "POST",
+							"body": JSON.stringify({
+								type: 'SET_CLIPBOARD',
+								payload: success
+							})
+						})
+
+					CLIPBOARD = null
+				}
+			}
+
+            const ACTION_SETTING_CLIPBOARD = {
+        		"method": "POST",
+        		"body": JSON.stringify({ 
+        		    type: 'SETTING_CLIPBOARD',
+        		    payload: true
+        		})
+    		}
+
+			function onMessage (evt) {
+			    if (!CLIPBOARD) {
+    				if (evt.data && evt.data.type == 'SET_CLIPBOARD') {
+    					CLIPBOARD = evt.data
+        			    fetch('http://clipboard/message', ACTION_SETTING_CLIPBOARD)
+    				}
+			    }
+			}
+
+			document.addEventListener('keypress', SetClipboard)
+
+			window.addEventListener('message', onMessage)
+		</script>
+	</body>
+</html>
