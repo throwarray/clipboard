@@ -1,7 +1,9 @@
 local CALLBACK = nil
 local SETTING_CLIPBOARD = false
 
-RegisterNUICallback('message', function (data)
+RegisterNUICallback('message', function (data, cb)
+	cb("done")
+
 	if data == nil then return
 
 	elseif data.type == 'SETTING_CLIPBOARD' then
